@@ -1,0 +1,35 @@
+{
+  "name": "techsiege-backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3200",
+    "build": "next build",
+    "start": "next start --port 3200",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "seed:demo": "tsx scripts/seedDemo.ts",
+    "seed:clear": "tsx scripts/seedDemo.ts clear",
+    "test:workflow": "tsx scripts/test-pdf-workflow.ts"
+  },
+  "dependencies": {
+    "next": "14.2.13",
+    "nodemailer": "^10.0.11",
+    "pdf-lib": "^1.17.1",
+    "pg": "^8.23.0",
+    "qrcode": "^1.5.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.0",
+    "@types/nodemailer": "^8.0.2",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.4"
+  }
+}
