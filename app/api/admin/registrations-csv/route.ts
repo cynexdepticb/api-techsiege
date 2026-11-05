@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 
 const CSV_COLUMNS = [
   "team_code",
+  "event",
   "team_name",
   "institution",
   "city",
@@ -38,7 +39,7 @@ export const GET = route(async (req) => {
   const pool = requirePool();
 
   const { rows } = await pool.query(
-    `SELECT t.team_code, t.team_name, t.institution, t.city, t.track_id, t.project_idea,
+    `SELECT t.team_code, t.event_slug, t.team_name, t.institution, t.city, t.track_id, t.project_idea,
             t.registration_status, t.payment_status, t.payment_reference, t.created_at,
             m.is_lead, m.full_name, m.email, m.phone, m.branch_year
      FROM public.teams t LEFT JOIN public.members m ON m.team_id = t.id
@@ -49,6 +50,7 @@ export const GET = route(async (req) => {
     .map((r) =>
       [
         r.team_code,
+        r.event_slug,
         r.team_name,
         r.institution,
         r.city,

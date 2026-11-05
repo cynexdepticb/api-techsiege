@@ -1,6 +1,6 @@
 // ─── TechSiege · single source of truth ─────────────────────────────
 // Edit dates, links, tracks, schedule, judging, sponsors here — no layout changes needed.
-// EVENT NAME: set NEXT_PUBLIC_EVENT_NAME in .env (see .env.example).
+// EVENT NAME: set EVENT_NAME in .env (see .env.example).
 // Changing it only requires a rebuild — no code edits.
 import { TRACKS as CANONICAL_TRACKS, type TrackId } from "./tracks";
 
@@ -9,8 +9,8 @@ const TRACK_TITLES = Object.fromEntries(CANONICAL_TRACKS.map((t) => [t.id, t.tit
   string
 >;
 
-const EVENT_NAME = (process.env.NEXT_PUBLIC_EVENT_NAME ?? "").trim() || "TechSiege";
-const EVENT_START_ISO = "2026-10-30T08:00:00+05:30";
+const EVENT_NAME = (process.env.EVENT_NAME ?? "").trim() || "Techsiege 2026";
+const EVENT_START_ISO = process.env.EVENT_START_ISO ?? "2026-11-17T11:00:00+05:30";
 
 export const SITE = {
   name: EVENT_NAME,
@@ -19,7 +19,7 @@ export const SITE = {
   tagline: "Build. Automate. Act.",
   // ⚠️ EDIT ME: set the real event start date/time (IST).
   eventStartISO: EVENT_START_ISO,
-  datesDisplay: "Oct 30–31, 2026",
+  datesDisplay: "17–18 November 2026",
   venue: "Alva's Institute of Engineering and Technology, Mijar Campus · Auditorium",
   city: "Mangaluru, Karnataka",
   participants: "200+",
@@ -47,7 +47,7 @@ export const NAV_LINKS = [  { label: "About", href: "#about" },
 export const STATS = [
   { value: "200+", label: "Participants", sub: "Engineering & MCA students" },
   { value: "50+", label: "Teams", sub: "2–4 members per team" },
-  { value: "6", label: "Tracks", sub: "Real agentic problem statements" },
+  { value: "5", label: "Tracks", sub: "Real-world problem statements" },
   { value: "24 hrs", label: "Offline Build", sub: "Mangaluru campus venue" },
 ];
 
@@ -57,40 +57,34 @@ export type Track = { id: TrackId; title: string; desc: string; examples: string
 // which tracks exist. Only the presentation copy lives here.
 export const TRACKS = [
   {
-    id: "autonomous",
-    title: TRACK_TITLES.autonomous,
-    desc: "Agents that plan, act and finish work end-to-end.",
-    examples: ["Research agents", "Productivity copilots", "Enterprise workflow automation"],
+    id: "agentic-ai",
+    title: TRACK_TITLES["agentic-ai"],
+    desc: "Systems that reason, use tools and complete meaningful work with people in control.",
+    examples: ["Research workflows", "Operations copilots", "Enterprise automation"],
   },
   {
-    id: "education",
-    title: TRACK_TITLES.education,
-    desc: "Tutors and tools that actually teach and administer.",
-    examples: ["Personalized tutors", "Assessment graders", "Teacher admin assistants"],
+    id: "cybersecurity",
+    title: TRACK_TITLES.cybersecurity,
+    desc: "Practical tools that help people and organisations detect, prevent and recover from threats.",
+    examples: ["Phishing defence", "Security awareness", "Incident-response assistants"],
   },
   {
-    id: "healthcare",
-    title: TRACK_TITLES.healthcare,
-    desc: "Information & workflow assistants for care teams.",
-    examples: ["Triage intake agents", "Literature research", "Discharge-summary helpers"],
+    id: "climate-energy",
+    title: TRACK_TITLES["climate-energy"],
+    desc: "Data-led solutions for cleaner energy, resilient communities and efficient resource use.",
+    examples: ["Energy optimisation", "Climate-risk tools", "Waste and water intelligence"],
   },
   {
-    id: "finance",
-    title: TRACK_TITLES.finance,
-    desc: "Agents that read numbers and explain what matters.",
-    examples: ["Financial research", "Expense analysis", "Business-intelligence bots"],
+    id: "digital-health",
+    title: TRACK_TITLES["digital-health"],
+    desc: "Inclusive digital tools that make health information, care journeys and everyday access easier.",
+    examples: ["Care navigation", "Assistive technology", "Health literacy"],
   },
   {
-    id: "social",
-    title: TRACK_TITLES.social,
-    desc: "Accessibility, public-service and planet-first agents.",
-    examples: ["Accessibility aides", "Civic-service bots", "Environmental monitors"],
-  },
-  {
-    id: "devagents",
-    title: TRACK_TITLES.devagents,
-    desc: "Agents that ship software alongside you.",
-    examples: ["Code + test generation", "Auto-documentation", "DevOps & code review"],
+    id: "civic-tech",
+    title: TRACK_TITLES["civic-tech"],
+    desc: "Services that make public systems, local information and community participation work better.",
+    examples: ["Citizen services", "Local issue reporting", "Public-data tools"],
   },
 ] satisfies Track[];
 
@@ -186,16 +180,6 @@ export const SPONSOR_TIERS = [
   { name: "Technology Partner", range: "Credits / Infra", perks: ["API credits, cloud, tooling", "Workshop slot", "Logo in dev resources"] },
   { name: "Prize / In-Kind", range: "Goodies / Prizes", perks: ["Swag, gadgets, subscriptions", "Logo on prize wall"] },
 ];
-
-export const PAYMENT = {
-  // Displayed on /register next to the QR. Set the real values in .env:
-  //   PAYMENT_QR_IMAGE=/payment-qr.png  PAYMENT_AMOUNT=₹600 per team  PAYMENT_UPI=karthikkarthik98947@okhdfcbank
-  // The official QR file lives at public/payment-qr.png (QR only, cropped).
-  qrImage: process.env.NEXT_PUBLIC_PAYMENT_QR_IMAGE?.trim() || "/payment-qr.png",
-  amount: process.env.NEXT_PUBLIC_PAYMENT_AMOUNT?.trim() || "₹600 per team",
-  upiId: process.env.NEXT_PUBLIC_PAYMENT_UPI?.trim() || "karthikkarthik98947@okhdfcbank",
-  payee: process.env.NEXT_PUBLIC_PAYMENT_PAYEE?.trim() || "Karthik Gowda P",
-};
 
 export const FAQS = [
   {

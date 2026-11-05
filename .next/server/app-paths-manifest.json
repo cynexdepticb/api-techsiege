@@ -1,1 +1,18 @@
-{}
+{
+  "/api/admin/checkin/route": "app/api/admin/checkin/route.js",
+  "/api/admin/registrations-csv/route": "app/api/admin/registrations-csv/route.js",
+  "/api/admin/payments/[id]/screenshot/route": "app/api/admin/payments/[id]/screenshot/route.js",
+  "/api/admin/registrations/[id]/route": "app/api/admin/registrations/[id]/route.js",
+  "/api/admin/registrations/route": "app/api/admin/registrations/route.js",
+  "/api/admin/registrations/[id]/resend/route": "app/api/admin/registrations/[id]/resend/route.js",
+  "/api/health/route": "app/api/health/route.js",
+  "/api/admin/stats/route": "app/api/admin/stats/route.js",
+  "/api/config/route": "app/api/config/route.js",
+  "/api/subscribe/route": "app/api/subscribe/route.js",
+  "/api/teams/count/route": "app/api/teams/count/route.js",
+  "/api/tickets/[token]/pdf/route": "app/api/tickets/[token]/pdf/route.js",
+  "/api/contact/route": "app/api/contact/route.js",
+  "/api/admin/tickets/[id]/pdf/route": "app/api/admin/tickets/[id]/pdf/route.js",
+  "/api/register/route": "app/api/register/route.js",
+  "/api/admin/registrations/[id]/decision/route": "app/api/admin/registrations/[id]/decision/route.js"
+}

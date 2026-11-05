@@ -25,7 +25,7 @@ export const GET = route(async (req) => {
         : "";
 
   const { rows } = await pool.query(
-    `SELECT t.id, t.team_code, t.team_name, t.institution, t.city, t.track_id,
+    `SELECT t.id, t.team_code, t.event_slug, t.team_name, t.institution, t.city, t.track_id,
             t.project_idea, t.registration_status, t.payment_status,
             t.payment_reference,
             (t.payment_screenshot_path <> '') AS screenshot_present,

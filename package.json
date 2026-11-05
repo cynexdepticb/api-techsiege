@@ -14,6 +14,7 @@
     "test:workflow": "tsx scripts/test-pdf-workflow.ts"
   },
   "dependencies": {
+    "@vercel/blob": "^2.8.2",
     "next": "14.2.13",
     "nodemailer": "^10.0.11",
     "pdf-lib": "^1.17.1",

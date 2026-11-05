@@ -1,6 +1,4 @@
 import { randomUUID } from "node:crypto";
-import { unlink } from "node:fs/promises";
-import path from "node:path";
 import { MAX_TEAMS } from "@/lib/tracks";
 import { SITE } from "@/lib/content";
 import { UNIQUE_VIOLATION, requirePool } from "@/lib/server/db";
@@ -10,7 +8,7 @@ import { rateLimit } from "@/lib/server/rateLimit";
 import { forwardRegistration } from "@/lib/server/ops";
 import { registerSchema } from "@/lib/server/validation";
 import { newTeamCode } from "@/lib/server/codes";
-import { storePaymentScreenshot } from "@/lib/server/paymentFiles";
+import { deletePaymentScreenshot, storePaymentScreenshot } from "@/lib/server/paymentFiles";
 import { acknowledgementEmail, sendMail } from "@/lib/server/mail";
 
 /**
@@ -47,6 +45,7 @@ export const POST = route(async (req) => {
     }
     raw = {
       teamName: String(form.get("teamName") ?? ""),
+      eventSlug: String(form.get("eventSlug") ?? "hackathon"),
       institution: String(form.get("institution") ?? ""),
       city: String(form.get("city") ?? ""),
       trackId: String(form.get("trackId") ?? ""),
@@ -87,7 +86,7 @@ export const POST = route(async (req) => {
     if (clash.rows.length === 0) teamCode = candidate;
   }
   if (!teamCode) {
-    await unlink(path.join(process.cwd(), stored.relativePath)).catch(() => {});
+    await deletePaymentScreenshot(stored.relativePath).catch(() => {});
     throw new HttpError(503, "Could not issue a reference ID. Please try again.");
   }
 
@@ -96,13 +95,13 @@ export const POST = route(async (req) => {
     await client.query("BEGIN");
     await client.query(
       `INSERT INTO public.teams
-         (id, team_code, team_name, institution, city, track_id, project_idea,
+         (id, team_code, event_slug, team_name, institution, city, track_id, project_idea,
           payment_reference, payment_screenshot_path, payment_screenshot_mime,
           payment_screenshot_size, registration_status, payment_status, submitted_at)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,'PAYMENT_PENDING','PENDING',now())`,
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,'PAYMENT_PENDING','PENDING',now())`,
       [
-        teamId, teamCode, data.teamName, data.institution, data.city,
-        data.trackId, data.projectIdea, data.paymentReference,
+        teamId, teamCode, data.eventSlug, data.teamName, data.institution,
+        data.city, data.trackId, data.projectIdea, data.paymentReference,
         stored.relativePath, stored.mime, stored.size,
       ],
     );
@@ -118,7 +117,7 @@ export const POST = route(async (req) => {
     await client.query("COMMIT");
   } catch (e: unknown) {
     await client.query("ROLLBACK");
-    await unlink(path.join(process.cwd(), stored.relativePath)).catch(() => {});
+    await deletePaymentScreenshot(stored.relativePath).catch(() => {});
     if (typeof e === "object" && e !== null && (e as { code?: string }).code === UNIQUE_VIOLATION) {
       return fail(409, "One of these emails is already registered with another team.");
     }
@@ -153,13 +152,14 @@ export const POST = route(async (req) => {
     {
       teamId,
       teamCode,
+      eventSlug: data.eventSlug,
       teamName: data.teamName,
       registrationStatus: "PAYMENT_PENDING",
       paymentStatus: "PENDING",
-      acknowledged: acked.status === "SENT",
-      ackEmailed: acked.status === "SENT",
+      acknowledged: acked.status === "SENT" || (forwarded.ok && (forwarded.emailed ?? 0) > 0),
+      ackEmailed: acked.status === "SENT" || (forwarded.ok && (forwarded.emailed ?? 0) > 0),
       emailNotice:
-        acked.status === "SENT"
+        acked.status === "SENT" || (forwarded.ok && (forwarded.emailed ?? 0) > 0)
           ? null
           : "Registration saved. The acknowledgement email could not be sent — the Ops team will still verify your payment.",
       venue: SITE.venue,

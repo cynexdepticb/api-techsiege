@@ -4,19 +4,22 @@ import { TRACK_IDS } from "@/lib/tracks";
 export const memberSchema = z.object({
   fullName: z.string().trim().min(2).max(100),
   email: z.string().trim().email().max(254),
-  phone: z.string().trim().regex(/^[+]?[0-9\s-]{6,20}$/, "Enter a valid phone number"),
+  phone: z.string().trim().regex(/^(?:\+91[\s-]?)?[6-9]\d{9}$/, "Enter a valid 10-digit Indian mobile number"),
   branchYear: z.string().trim().max(120).optional().default(""),
 });
 
 export const registerSchema = z
   .object({
+    eventSlug: z
+      .enum(["hackathon", "ctf", "circuit-breaker", "crack-the-code", "e-sports"])
+      .default("hackathon"),
     teamName: z.string().trim().min(2).max(80),
     institution: z.string().trim().min(2).max(160),
     city: z.string().trim().max(100).optional().default(""),
     trackId: z.enum(TRACK_IDS),
     projectIdea: z.string().trim().max(1000).optional().default(""),
     // UPI / bank reference the payer saw (optional — screenshot is the proof).
-    paymentReference: z.string().trim().max(120).optional().default(""),
+    paymentReference: z.string().trim().min(3, "Enter the UPI transaction ID").max(120),
     members: z
       .array(memberSchema)
       .min(2, "Teams need 2–4 members")

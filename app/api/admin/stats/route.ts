@@ -41,7 +41,7 @@ export const GET = route(async (req) => {
        ) s GROUP BY team_size ORDER BY team_size`,
     ),
     pool.query(
-      `SELECT t.id, t.team_name, t.institution, t.city, t.track_id, t.project_idea,
+      `SELECT t.id, t.event_slug, t.team_name, t.institution, t.city, t.track_id, t.project_idea,
               t.created_at,
               COUNT(m.id)::int AS member_count,
               MAX(m.full_name) FILTER (WHERE m.is_lead) AS lead_name,

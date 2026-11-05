@@ -42,6 +42,7 @@ CREATE INDEX IF NOT EXISTS members_team_idx ON members (team_id);
 -- Registration lifecycle: PAYMENT_PENDING → PAYMENT_VERIFICATION →
 -- CONFIRMED | PAYMENT_REJECTED | RESUBMISSION_REQUIRED | CANCELLED.
 ALTER TABLE teams ADD COLUMN IF NOT EXISTS team_code VARCHAR(16);
+ALTER TABLE teams ADD COLUMN IF NOT EXISTS event_slug VARCHAR(40) NOT NULL DEFAULT 'hackathon';
 ALTER TABLE teams ADD COLUMN IF NOT EXISTS registration_status VARCHAR(32) NOT NULL DEFAULT 'PAYMENT_PENDING';
 ALTER TABLE teams ADD COLUMN IF NOT EXISTS payment_status VARCHAR(16) NOT NULL DEFAULT 'PENDING';
 ALTER TABLE teams ADD COLUMN IF NOT EXISTS payment_reference VARCHAR(120) NOT NULL DEFAULT '';
@@ -76,6 +77,7 @@ END $$;
 
 CREATE UNIQUE INDEX IF NOT EXISTS teams_code_unique ON teams (team_code);
 CREATE INDEX IF NOT EXISTS teams_status_idx ON teams (registration_status, payment_status);
+CREATE INDEX IF NOT EXISTS teams_event_idx ON teams (event_slug, registration_status);
 CREATE INDEX IF NOT EXISTS teams_submitted_idx ON teams (submitted_at DESC);
 
 ALTER TABLE members ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT now();

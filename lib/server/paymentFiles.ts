@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { del, get, put } from "@vercel/blob";
 import { newUploadId } from "./codes";
 
 /**
@@ -40,6 +41,14 @@ export type StoredScreenshot = {
   size: number;
 };
 
+function blobToken() {
+  return process.env.BLOB_READ_WRITE_TOKEN?.trim() || undefined;
+}
+
+function isBlobLocation(value: string) {
+  return value.startsWith("https://");
+}
+
 export async function storePaymentScreenshot(
   teamId: string,
   file: File,
@@ -54,15 +63,34 @@ export async function storePaymentScreenshot(
     throw new Error("Payment screenshot must be a PNG, JPEG or WebP image.");
   }
 
+  const relativePath = path.join("data", "payments", teamId, `${newUploadId()}.${sniffed.ext}`);
+  const token = blobToken();
+  if (token) {
+    const blob = await put(relativePath, buf, {
+      access: "private",
+      addRandomSuffix: false,
+      contentType: sniffed.mime,
+      token,
+    });
+    return { relativePath: blob.url, mime: sniffed.mime, size: buf.length };
+  }
+
   const dir = path.join(process.cwd(), "data", "payments", teamId);
   await fs.mkdir(dir, { recursive: true, mode: 0o700 });
-  const relativePath = path.join("data", "payments", teamId, `${newUploadId()}.${sniffed.ext}`);
   await fs.writeFile(path.join(process.cwd(), relativePath), buf, { mode: 0o600 });
   return { relativePath, mime: sniffed.mime, size: buf.length };
 }
 
 /** Resolves a stored relative path, refusing anything that escapes data/. */
 export async function readPaymentScreenshot(relativePath: string): Promise<{ buf: Buffer; mime: string }> {
+  if (isBlobLocation(relativePath)) {
+    const blob = await get(relativePath, { access: "private", token: blobToken() });
+    if (!blob?.stream) throw new Error("Screenshot blob is missing from storage.");
+    const buf = Buffer.from(await new Response(blob.stream).arrayBuffer());
+    const sniffed = sniffMime(buf);
+    if (!sniffed) throw new Error("Stored screenshot failed validation.");
+    return { buf, mime: sniffed.mime };
+  }
   const root = path.join(process.cwd(), "data", "payments");
   const abs = path.resolve(process.cwd(), relativePath);
   if (abs !== root && !abs.startsWith(root + path.sep)) {
@@ -72,4 +100,16 @@ export async function readPaymentScreenshot(relativePath: string): Promise<{ buf
   const sniffed = sniffMime(buf);
   if (!sniffed) throw new Error("Stored screenshot failed validation.");
   return { buf, mime: sniffed.mime };
+}
+
+export async function deletePaymentScreenshot(location: string) {
+  if (!location) return;
+  if (isBlobLocation(location)) {
+    await del(location, { token: blobToken() });
+    return;
+  }
+  const root = path.join(process.cwd(), "data", "payments");
+  const abs = path.resolve(process.cwd(), location);
+  if (abs !== root && !abs.startsWith(root + path.sep)) throw new Error("Invalid screenshot path.");
+  await fs.unlink(abs);
 }
