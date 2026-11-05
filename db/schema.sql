@@ -82,42 +82,7 @@ CREATE INDEX IF NOT EXISTS teams_submitted_idx ON teams (submitted_at DESC);
 
 ALTER TABLE members ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT now();
 
--- One ticket per member, generated ONLY after payment verification.
--- ticket_status: GENERATED → CHECKED_IN | CANCELLED. (NOT_GENERATED is the
--- absence of a row — no boolean needed.)
-CREATE TABLE IF NOT EXISTS tickets (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  ticket_id     VARCHAR(32) NOT NULL,
-  team_id       UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
-  member_id     UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
-  qr_token      VARCHAR(128) NOT NULL,
-  ticket_status VARCHAR(16) NOT NULL DEFAULT 'GENERATED',
-  generated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
-  checked_in_at TIMESTAMPTZ,
-  checked_in_by VARCHAR(120) NOT NULL DEFAULT '',
-  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
-DO $$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'tickets_status_check') THEN
-    ALTER TABLE tickets ADD CONSTRAINT tickets_status_check CHECK (
-      ticket_status IN ('GENERATED','CHECKED_IN','CANCELLED')
-    );
-  END IF;
-END $$;
-
-CREATE UNIQUE INDEX IF NOT EXISTS tickets_ticket_id_unique ON tickets (ticket_id);
-CREATE UNIQUE INDEX IF NOT EXISTS tickets_qr_unique ON tickets (qr_token);
-CREATE UNIQUE INDEX IF NOT EXISTS tickets_member_unique ON tickets (member_id);
-CREATE INDEX IF NOT EXISTS tickets_team_idx ON tickets (team_id);
-
-ALTER TABLE tickets ADD COLUMN IF NOT EXISTS pdf_filename VARCHAR(255) NOT NULL DEFAULT '';
-ALTER TABLE tickets ADD COLUMN IF NOT EXISTS pdf_path TEXT NOT NULL DEFAULT '';
-ALTER TABLE tickets ADD COLUMN IF NOT EXISTS pdf_status VARCHAR(32) NOT NULL DEFAULT 'PENDING';
-ALTER TABLE tickets ADD COLUMN IF NOT EXISTS pdf_generated_at TIMESTAMPTZ;
-
--- Audit log for every payment decision (verify / reject / resubmit / resend).
+-- Audit log for payment decisions made by operations.
 CREATE TABLE IF NOT EXISTS payment_decisions (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   team_id       UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,

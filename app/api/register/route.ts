@@ -1,6 +1,5 @@
 import { randomUUID } from "node:crypto";
 import { MAX_TEAMS } from "@/lib/tracks";
-import { SITE } from "@/lib/content";
 import { UNIQUE_VIOLATION, requirePool } from "@/lib/server/db";
 import { HttpError } from "@/lib/server/errors";
 import { fail, ok, readJson, route } from "@/lib/server/http";
@@ -19,9 +18,8 @@ import { acknowledgementEmail, sendMail } from "@/lib/server/mail";
  * for Ops to verify.
  *
  * Stored state: payment_status=PENDING, registration_status=PAYMENT_PENDING.
- * NO tickets are generated here — that happens only in the admin verify
- * action after payment approval. The leader gets an acknowledgement email
- * (best-effort); a mail failure never rolls back the stored registration.
+ * The leader gets an acknowledgement email (best-effort); a mail failure never
+ * rolls back the stored registration. Payment verification is handled in Ops.
  */
 export const POST = route(async (req) => {
   await rateLimit({ windowMs: 60_000, max: 30 })(req);
@@ -140,9 +138,7 @@ export const POST = route(async (req) => {
     ])
     .catch((e) => console.error("[register] ack status update failed", e));
 
-  /* Existing ops forwarding (team codes, check-in QR, per-member mail over
-     there). Best-effort as before; the local row is the source of truth for
-     the payment workflow regardless. */
+  // Best-effort Ops forwarding; the local row remains the payment source of truth.
   const forwarded = await forwardRegistration(teamId, data);
   if (!forwarded.ok) {
     console.error(`[register] team ${teamId} stored but not forwarded to ops: ${forwarded.reason}`);
@@ -162,8 +158,6 @@ export const POST = route(async (req) => {
         acked.status === "SENT" || (forwarded.ok && (forwarded.emailed ?? 0) > 0)
           ? null
           : "Registration saved. The acknowledgement email could not be sent — the Ops team will still verify your payment.",
-      venue: SITE.venue,
-      dates: SITE.datesDisplay,
     },
     201,
   );

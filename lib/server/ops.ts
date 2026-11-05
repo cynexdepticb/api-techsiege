@@ -3,9 +3,8 @@ import type { RegisterInput } from "./validation";
 /**
  * Forwards a marketing-site registration to the ops platform.
  *
- * The ops app is the one that owns team codes, per-track capacity, the check-in QR
- * and every email, so a registration that never reaches it is a team the
- * organisers cannot acknowledge, cannot chase payment for and cannot admit. It
+ * The ops app owns payment verification and final confirmation, so a
+ * registration that never reaches it is a team the organisers cannot verify. It
  * used to get there only by someone running `npm run db:sync-registrations` by
  * hand, which is not a step a student can rely on.
  *

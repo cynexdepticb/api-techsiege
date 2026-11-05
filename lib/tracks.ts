@@ -3,9 +3,8 @@
  * validate or label a track — the registration form, the API route, and the
  * organizer dashboard all read from here.
  *
- * `lib/content.ts` composes these into the richer cards the site renders (it
- * adds `desc` and `examples`), so a track can never exist in the UI without
- * being accepted by the API, or vice versa.
+ * Public event content lives in the frontend. These IDs remain here so API
+ * validation and Ops forwarding use the same accepted track values.
  */
 export const TRACKS = [
   { id: "agentic-ai", title: "Agentic AI & Automation" },

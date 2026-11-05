@@ -33,14 +33,4 @@ export const registerSchema = z
     path: ["members"],
   });
 
-export const contactSchema = z.object({
-  name: z.string().min(2).max(100),
-  email: z.string().email(),
-  type: z.enum(["general", "sponsor", "mentor", "team"]),
-  message: z.string().min(10).max(2000),
-});
-
-export const subscribeSchema = z.object({ email: z.string().email() });
-
 export type RegisterInput = z.infer<typeof registerSchema>;
-export type ContactInput = z.infer<typeof contactSchema>;
