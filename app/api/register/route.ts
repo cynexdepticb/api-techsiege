@@ -1,5 +1,4 @@
 import { randomUUID } from "node:crypto";
-import { MAX_TEAMS } from "@/lib/tracks";
 import { UNIQUE_VIOLATION, requirePool } from "@/lib/server/db";
 import { HttpError } from "@/lib/server/errors";
 import { fail, ok, readJson, route } from "@/lib/server/http";
@@ -64,11 +63,6 @@ export const POST = route(async (req) => {
 
   const data = registerSchema.parse(raw);
   const pool = requirePool();
-
-  const { rows } = await pool.query("SELECT COUNT(*)::int AS n FROM public.teams");
-  if (rows[0]!.n >= MAX_TEAMS) {
-    throw new HttpError(409, "All team slots are filled. Join the waitlist via cynex.depticb@gmail.com.");
-  }
 
   // Team id is minted here so the screenshot path is known before the insert.
   const teamId = randomUUID();

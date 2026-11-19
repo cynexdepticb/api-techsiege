@@ -1,18 +1,28 @@
-import { MAX_TEAMS } from "@/lib/tracks";
 import { getPool } from "@/lib/server/db";
 import { ok, route } from "@/lib/server/http";
 
 export const dynamic = "force-dynamic";
 
 /**
- * GET /api/teams/count — public slot counter for the registration page.
- * `configured: false` means no DATABASE_URL, which the UI can show as
- * "registration closed" rather than an error.
+ * GET /api/teams/count — public counter for the registration page.
+ * Supports optional `?event=` or `?eventSlug=` parameter to get count for a specific event.
+ * There is no team capacity cap.
  */
-export const GET = route(async () => {
+export const GET = route(async (req) => {
   const pool = getPool();
-  if (!pool) return ok({ teams: 0, maxTeams: MAX_TEAMS, configured: false });
+  const url = new URL(req.url);
+  const eventSlug = url.searchParams.get("event") || url.searchParams.get("eventSlug");
+
+  if (!pool) return ok({ teams: 0, maxTeams: null, configured: false });
+
+  if (eventSlug) {
+    const { rows } = await pool.query(
+      "SELECT COUNT(*)::int AS n FROM public.teams WHERE event_slug = $1",
+      [eventSlug],
+    );
+    return ok({ teams: rows[0]!.n, maxTeams: null, configured: true });
+  }
 
   const { rows } = await pool.query("SELECT COUNT(*)::int AS n FROM public.teams");
-  return ok({ teams: rows[0]!.n, maxTeams: MAX_TEAMS, configured: true });
+  return ok({ teams: rows[0]!.n, maxTeams: null, configured: true });
 });

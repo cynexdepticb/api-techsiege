@@ -23,5 +23,4 @@ export const TRACK_LABELS: Record<TrackId, string> = Object.fromEntries(
   TRACKS.map((t) => [t.id, t.title]),
 ) as Record<TrackId, string>;
 
-/** Hard cap on total teams for the event. */
-export const MAX_TEAMS = 60;
+
