@@ -30,6 +30,8 @@ export const POST = route(async (req) => {
   if (contentType.includes("multipart/form-data")) {
     const form = await req.formData();
     const eventSlug = String(form.get("eventSlug") ?? "hackathon");
+    if (eventSlug === "circuit-breaker") return fail(403, "Circuit Breaker registration is closed.");
+    if (eventSlug === "crack-the-code") return fail(403, "Crack the Code registration is closed.");
     if (eventSlug === "hackathon" && Date.now() >= Date.parse("2026-11-24T16:00:00+05:30")) {
       return fail(403, "Hackathon registration closed at 4:00 PM IST on 24 November.");
     }
