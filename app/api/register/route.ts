@@ -29,6 +29,8 @@ export const POST = route(async (req) => {
 
   if (contentType.includes("multipart/form-data")) {
     const form = await req.formData();
+    const eventSlug = String(form.get("eventSlug") ?? "hackathon");
+    if (eventSlug === "hackathon") return fail(403, "Hackathon registration is closed.");
     const file = form.get("screenshot");
     if (!(file instanceof File) || file.size === 0) {
       return fail(400, "Payment screenshot is required. Pay via the QR code, then upload the receipt.");
@@ -42,7 +44,7 @@ export const POST = route(async (req) => {
     }
     raw = {
       teamName: String(form.get("teamName") ?? ""),
-      eventSlug: String(form.get("eventSlug") ?? "hackathon"),
+      eventSlug,
       institution: String(form.get("institution") ?? ""),
       city: String(form.get("city") ?? ""),
       trackId: String(form.get("trackId") ?? ""),
