@@ -30,7 +30,9 @@ export const POST = route(async (req) => {
   if (contentType.includes("multipart/form-data")) {
     const form = await req.formData();
     const eventSlug = String(form.get("eventSlug") ?? "hackathon");
-    if (eventSlug === "hackathon") return fail(403, "Hackathon registration is closed.");
+    if (eventSlug === "hackathon" && Date.now() >= Date.parse("2026-11-24T16:00:00+05:30")) {
+      return fail(403, "Hackathon registration closed at 4:00 PM IST on 24 November.");
+    }
     const file = form.get("screenshot");
     if (!(file instanceof File) || file.size === 0) {
       return fail(400, "Payment screenshot is required. Pay via the QR code, then upload the receipt.");
