@@ -32,8 +32,8 @@ export const POST = route(async (req) => {
     const eventSlug = String(form.get("eventSlug") ?? "hackathon");
     if (eventSlug === "circuit-breaker") return fail(403, "Circuit Breaker registration is closed.");
     if (eventSlug === "crack-the-code") return fail(403, "Crack the Code registration is closed.");
-    if (eventSlug === "hackathon" && Date.now() >= Date.parse("2026-11-24T16:00:00+05:30")) {
-      return fail(403, "Hackathon registration closed at 4:00 PM IST on 24 November.");
+    if (eventSlug === "hackathon" && Date.now() >= Date.parse("2026-11-25T13:30:00+05:30")) {
+      return fail(403, "Hackathon registration closed at 1:30 PM IST on 25 November.");
     }
     const file = form.get("screenshot");
     if (!(file instanceof File) || file.size === 0) {
